@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>ateco web</title>
+	<!-- <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script> -->
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script> -->
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+   integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+   crossorigin=""/>
+   <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+   integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+   crossorigin=""></script>
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.5.0/localforage.js"></script>
+   <script src="dist/leaflet-offline.js"></script>
+   <script src="index.js"></script>
+</head>
+<style media="screen">
+body{
+	margin: 0;
+	background-color: #E1E1E1
+}
+#mapid { height: 95vh; width: 100vw;}
+.info{
+	text-align: center;
+	background-color: #E1E1E1
+}
+input{
+	margin: 5px;
+}
+
+</style>
+<body>
+	<div class="filter" style="text-align:center; margin-top:15px;height:5vh">
+		<select class="select__area" name="" id='area__select'>
+			<option value="all">All Areas</option>
+		</select>
+		<select class="select__collector" name="" id='collectior__select'>
+			<option value="all">All Collectors</option>
+
+		</select>
+		<button id='addBeneficiary' type="button" name="button">Add Customer</button>
+		<button type="button" id='updateLocation' name="button">Update Location</button>
+		<button type="button" id='offline' name="button">Offline mode</button>
+
+	</div>
+	<div id="mapid" style="">
+
+	</div>
+	<div id='info' class="info" style="display:none;">
+
+	</div>
+	<div id='beneficiaryform'  class="info" style="display:none; margin :15px;">
+		<h3> Customer info </h3>
+		<p>
+
+		<input type="text" id="name" name="name" placeholder="Name"> <br>
+		<input type="text" id='phone' name="phone" placeholder="Phone"><br><br>
+		<label for="product">product</label>
+		<select class="" name="product" id='product'>
+			<option value="boom">Boom</option>
+			<option value="sk60">SK60</option>
+		</select>
+		<br><br>
+
+		<i class="fa fa-user"></i>Select customer picture<br><br>
+		<input type="file" onchange="previewFile('pic')"><br><br>
+		<img id="picPreview" src="" style='height:100px;max-width:250px' alt="picture preview...">
+		<br>
+		<i class="fa fa-home"></i>Select customer house picture<br><br>
+		<input type="file" onchange="previewFile('house')"><br><br>
+		<img id="housePreview" src="" style='height:100px; max-width:250px' alt="house preview...">
+		<br><br>
+		<a href="#" id='customerLocation'>
+		<i  class="fa fa-map-pin"></i> click to get location<br><br>
+		<p id="locationData">no location</p></a>
+		<br><br><br><br>
+
+		<button id='saveCustomer' type="button" name="button" style="background-color:#24E192">Save</button>
+		<button type="button" name="button" style="background-color:#1DADEB">Save Offline</button>
+		<button type="button" name="button" style="background-color:#BA2D65">Cancel</button>
+	</p>
+
+	</div>
+
+
+	<script  type="text/javascript">
+
+	var picPreview = document.getElementById('picPreview');
+	var housePreview = document.getElementById('housePreview');
+	function previewFile(place){
+		   var preview = document.querySelector('img'); //selects the query named img
+		   var file    = document.querySelector('input[type=file]').files[0]; //sames as here
+		   var reader  = new FileReader();
+
+		   reader.onloadend = function () {
+			   console.log('yo');
+			   console.log(reader.result);
+			   if (place === 'pic') {
+				   picPreview.setAttribute('src',reader.result);
+
+			   }else {
+			   		housePreview.setAttribute('src',reader.result);
+			   }
+		   }
+
+		   if (file) {
+			   console.log('yo2');
+			   reader.readAsDataURL(file); //reads the data as a URL
+		   } else {
+			   preview.src = "";
+		   }
+	}
+
+
+
+
+
+	</script>
+
+
+</body>
+</html>
