@@ -40,6 +40,108 @@ document.addEventListener('DOMContentLoaded',function() {
 
 
 
+	// Actions
+
+
+	// UPDATE LOCATION BUTTON
+	updateLocation.addEventListener('click',function(e) {
+		e.preventDefault();
+		mymap.locate({setView: true, maxZoom: 16});
+		mymap.on('locationfound', onLocationFound);
+
+	})
+
+	var newCustomer = {
+		"fields": {
+			"Name": "",
+			"Notes": "hello",
+			"picture": "",
+			"housepic": "",
+			"lat": 14.7532024,
+			"lon": 121.017149,
+			"Assigned": [
+			"recnKw4i4FFcpKYSi"
+			],
+			"Area": [
+			"rec54htu425rjjTWZ"
+			],
+			"offlinepic": "",
+			"Product": [
+			"recQ2SRILqRXaoPwf"
+			]
+		}
+	};
+
+	// Add Beneficiary
+	addBeneficiary.addEventListener('click',function(e) {
+		e.preventDefault();
+		map.style.display = 'none' ;
+		beneficiaryform.style.display = 'block';
+
+	})
+	customerLocation.addEventListener('click',function(e) {
+		navigator.geolocation.getCurrentPosition(function(position) {
+			console.log(position.coords.latitude, position.coords.longitude);
+			newCustomer.fields.lat = position.coords.latitude;
+			newCustomer.fields.lon = position.coords.longitude;
+			locationData.innerHTML = 'latitude : ' + position.coords.latitude + '<br> longitude : '+position.coords.longitude ;
+		})
+
+	})
+	saveCustomer.addEventListener('click',function(e) {
+		newCustomer.fields.Name = document.getElementById('name').value;
+		newCustomer.fields.phone = document.getElementById('phone').value;
+		newCustomer.fields.offlinepic = picPreview.src;
+		newCustomer.fields.offlinehousepic = housePreview .src;
+		// newCustomer.fields.Product = []
+		// newCustomer.fields.Area = []
+		console.log(newCustomer);
+		alert('yo');
+		fetch('https://api.airtable.com/v0/appq4a0hmyrg7a7vg/Beneficiaries', {
+			method: 'post',
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer keyy91JVw4nn9lwqH',
+			},
+			body: JSON.stringify(newCustomer)
+			}).then(res=>res.json())
+			.then(res => {
+				console.log(res);
+				if (res.type ==='INVALID_VALUE_FOR_COLUMN') {
+					alert('sorry data was not saved')
+				}else {
+					map.style.display = 'block' ;
+					beneficiaryform.style.display = 'none';
+
+				}
+
+
+			}).catch(function(error) {
+		        alert(error);
+		    });
+
+		});
+
+
+
+
+	// SAVE beneficiaries DATA IN localStorage
+	offline.addEventListener('click',function(e) {
+		offline.innerText = "offline mode on";
+		offlineMode = true;
+		for (var i = 0; i < beneficiariesArray.length; i++) {
+			beneficiariesArray[i]
+		}
+		console.log(beneficiariesArray.toString());
+		localStorage.setItem('beneficiaries', JSON.stringify(beneficiariesArray));
+		console.log(JSON.parse(localStorage.beneficiaries));
+
+
+	})
+
+
+
 	//  OFFLINE MAP
 	var tilesDb = {
 		getItem: function (key) {
@@ -177,103 +279,7 @@ document.addEventListener('DOMContentLoaded',function() {
 
 	}
 
-	// Actions
 
-
-	// UPDATE LOCATION BUTTON
-	updateLocation.addEventListener('click',function(e) {
-		e.preventDefault();
-		mymap.locate({setView: true, maxZoom: 16});
-		mymap.on('locationfound', onLocationFound);
-
-	})
-
-	var newCustomer = {
-		"fields": {
-			"Name": "",
-			"Notes": "hello",
-			"picture": "",
-			"housepic": "",
-			"lat": 14.7532024,
-			"lon": 121.017149,
-			"Assigned": [
-			"recnKw4i4FFcpKYSi"
-			],
-			"Area": [
-			"rec54htu425rjjTWZ"
-			],
-			"offlinepic": "",
-			"Product": [
-			"recQ2SRILqRXaoPwf"
-			]
-		}
-	};
-
-	// Add Beneficiary
-	addBeneficiary.addEventListener('click',function(e) {
-		e.preventDefault();
-		map.style.display = 'none' ;
-		beneficiaryform.style.display = 'block';
-
-	})
-	customerLocation.addEventListener('click',function(e) {
-		navigator.geolocation.getCurrentPosition(function(position) {
-			console.log(position.coords.latitude, position.coords.longitude);
-			newCustomer.fields.lat = position.coords.latitude;
-			newCustomer.fields.lon = position.coords.longitude;
-			locationData.innerHTML = 'latitude : ' + position.coords.latitude + '<br> longitude : '+position.coords.longitude ;
-		})
-
-	})
-	saveCustomer.addEventListener('click',function(e) {
-		newCustomer.fields.Name = document.getElementById('name').value;
-		newCustomer.fields.phone = document.getElementById('phone').value;
-		newCustomer.fields.offlinepic = picPreview.src;
-		newCustomer.fields.offlinehousepic = housePreview .src;
-		// newCustomer.fields.Product = []
-		// newCustomer.fields.Area = []
-		console.log(newCustomer);
-		alert('yo');
-		fetch('https://api.airtable.com/v0/appq4a0hmyrg7a7vg/Beneficiaries', {
-			method: 'post',
-			headers: {
-				'Accept': 'application/json',
-				'Content-Type': 'application/json',
-				'Authorization': 'Bearer keyy91JVw4nn9lwqH',
-			},
-			body: JSON.stringify(newCustomer)
-			}).then(res=>res.json())
-			.then(res => {
-				console.log(res);
-				if (res.type ==='INVALID_VALUE_FOR_COLUMN') {
-					alert('sorry data was not saved')
-				}else {
-					map.style.display = 'block' ;
-					beneficiaryform.style.display = 'none';
-
-				}
-
-
-			});
-
-		})
-
-
-
-
-	// SAVE beneficiaries DATA IN localStorage
-	offline.addEventListener('click',function(e) {
-		offline.innerText = "offline mode on";
-		offlineMode = true;
-		for (var i = 0; i < beneficiariesArray.length; i++) {
-			beneficiariesArray[i]
-		}
-		console.log(beneficiariesArray.toString());
-		localStorage.setItem('beneficiaries', JSON.stringify(beneficiariesArray));
-		console.log(JSON.parse(localStorage.beneficiaries));
-
-
-	})
 
 
 
