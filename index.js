@@ -390,7 +390,7 @@ var CreateArea = function(collector) {
 // ADD MAP PIN.
 var CreateBeneficiaries = function(beneficiary,collectorId,area) {
 		console.log(beneficiary.fields.lat, beneficiary.fields.lon);
-		var marker = L.marker([beneficiary.fields.lat, beneficiary.fields.lon]).addTo(markerGroup).bindPopup("name " + beneficiary.fields.Name +'<br><a href=#'+beneficiary.id+'>more info<a>');
+		var marker = L.marker([beneficiary.fields.lat, beneficiary.fields.lon]).addTo(markerGroup).bindPopup("name " + beneficiary.fields.Name + "<br><br> <a href='geo:0,0?q="+beneficiary.fields.lat+""+beneficiary.fields.lon+"'>open in mapsme</a>");
 
 };
 
