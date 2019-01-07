@@ -15,6 +15,10 @@
    crossorigin=""></script>
    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.5.0/localforage.js"></script>
+   <script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
    <script src="dist/leaflet-offline.js"></script>
    <script src="index.js"></script>
 </head>
@@ -74,14 +78,14 @@ input{
 		<input type="file" onchange="previewFile('house')"><br><br>
 		<img id="housePreview" src="" style='height:100px; max-width:250px' alt="house preview...">
 		<br><br>
-		<a href="#" id='customerLocation'>
+		<a href="" id='customerLocation'>
 		<i  class="fa fa-map-pin"></i> click to get location<br><br>
 		<p id="locationData">no location</p></a>
 		<br><br><br><br>
 
 		<button id='saveCustomer' type="button" name="button" style="background-color:#24E192">Save</button>
 		<button type="button" name="button" style="background-color:#1DADEB">Save Offline</button>
-		<button type="button" name="button" style="background-color:#BA2D65">Cancel</button>
+		<button id='cancelCustomer' type="button" name="button" style="background-color:#BA2D65">Cancel</button>
 	</p>
 
 	</div>

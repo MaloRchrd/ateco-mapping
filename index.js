@@ -1,15 +1,19 @@
 document.addEventListener('DOMContentLoaded',function() {
 
 	var beneficiariesArray; // Array
+	var areasArray; // Array
+	var collectorsArray; // Array
 	var userLocation = {};
+	var areas = {}
 	var map = document.getElementById('mapid');
-	var collectiorSelect = document.getElementById('collectior__select');
+	var collectorSelect = document.getElementById('collectior__select');
 	var areaSelect = document.getElementById('area__select');
 	var addBeneficiary = document.getElementById('addBeneficiary');
 	var beneficiaryform = document.getElementById('beneficiaryform');
 	var customerLocation = document.getElementById('customerLocation');
 	var locationData = document.getElementById('locationData');
 	var saveCustomer = document.getElementById('saveCustomer');
+	var cancelCustomer = document.getElementById('cancelCustomer');
 
 	var offline = document.getElementById('offline');
 	var updateLocation = document.getElementById('updateLocation');
@@ -40,6 +44,7 @@ document.addEventListener('DOMContentLoaded',function() {
 
 
 
+
 	// Actions
 
 
@@ -51,14 +56,79 @@ document.addEventListener('DOMContentLoaded',function() {
 
 	})
 
+	// Collectors FILTER
+	collectorSelect.addEventListener("change", function() {
+		var value = areaSelect[areaSelect.selectedIndex].value;
+	    var areaId = areaSelect[areaSelect.selectedIndex].id;
+		var collectorId = collectorSelect[collectorSelect.selectedIndex].id;
+
+		console.log(value, areaId,collectorId);
+		filterData(collectorId,areaId);
+	});
+
+	areaSelect.addEventListener("change", function() {
+
+	    var value = areaSelect[areaSelect.selectedIndex].value;
+	    var areaId = areaSelect[areaSelect.selectedIndex].id;
+		var collectorId = collectorSelect[collectorSelect.selectedIndex].id;
+
+		console.log(value, areaId,collectorId);
+		filterData(collectorId,areaId);
+		// mymap.removeLayer(markerGroup);
+		// markerGroup.clearLayers();
+		// for (var i = 0; i < beneficiariesArray.length; i++) {
+		// 	CreateBeneficiaries(beneficiariesArray[i],id);
+		// }
+		// markerGroup = L.layerGroup().addTo(mymap);
+		// CreateBeneficiaries(beneficiariesArray,id);
+	});
+
+	var filterData = function (collectorId, areaID) {
+		var filterbenef = [];
+		var filterbenefArea = [];
+		if (collectorId != "") {
+			for (var i = 0; i < beneficiariesArray.length; i++) {
+				if (beneficiariesArray[i].fields.Assigned.includes(collectorId) ) {
+					filterbenef.push(beneficiariesArray[i])
+				}
+			}
+		}else {
+			filterbenef = beneficiariesArray ;
+		}
+		if (areaID != "") {
+			for (var i = 0; i < filterbenef.length; i++) {
+				if (filterbenef[i].fields.Area.includes(areaID) ) {
+					filterbenefArea.push(filterbenef[i]);
+				}
+			}
+
+		}else {
+			filterbenefArea = filterbenef;
+		}
+
+		markerGroup.clearLayers();
+		for (var i = 0; i < filterbenefArea.length; i++) {
+			CreateBeneficiaries(filterbenefArea[i]);
+		}
+	};
+
+
+
+	cancelCustomer.addEventListener('click',function(e) {
+		e.preventDefault();
+		map.style.display = 'block' ;
+		beneficiaryform.style.display = 'none';
+
+	})
+
 	var newCustomer = {
 		"fields": {
 			"Name": "",
 			"Notes": "hello",
 			"picture": "",
 			"housepic": "",
-			"lat": 14.7532024,
-			"lon": 121.017149,
+			"lat": 1,
+			"lon": 1,
 			"Assigned": [
 			"recnKw4i4FFcpKYSi"
 			],
@@ -78,24 +148,32 @@ document.addEventListener('DOMContentLoaded',function() {
 		map.style.display = 'none' ;
 		beneficiaryform.style.display = 'block';
 
-	})
+	});
+
 	customerLocation.addEventListener('click',function(e) {
+		e.preventDefault();
 		navigator.geolocation.getCurrentPosition(function(position) {
-			console.log(position.coords.latitude, position.coords.longitude);
 			newCustomer.fields.lat = position.coords.latitude;
 			newCustomer.fields.lon = position.coords.longitude;
 			locationData.innerHTML = 'latitude : ' + position.coords.latitude + '<br> longitude : '+position.coords.longitude ;
 		})
 
-	})
+	});
+
 	saveCustomer.addEventListener('click',function(e) {
 		newCustomer.fields.Name = document.getElementById('name').value;
 		newCustomer.fields.phone = document.getElementById('phone').value;
-		newCustomer.fields.offlinepic = picPreview.src;
-		newCustomer.fields.offlinehousepic = housePreview .src;
+		resizeBase64Img(picPreview.src,100,100).then(function(newImg){
+			newCustomer.fields.offlinepic = newImg;
+
+		})
+		resizeBase64Img(housePreview.src,100,100).then(function(newImg){
+			newCustomer.fields.offlinepic = newImg;
+
+		})
+		// newCustomer.fields.offlinehousepic = housePreview.src;
 		// newCustomer.fields.Product = []
 		// newCustomer.fields.Area = []
-		console.log(newCustomer);
 		alert('yo');
 		fetch('https://api.airtable.com/v0/appq4a0hmyrg7a7vg/Beneficiaries', {
 			method: 'post',
@@ -130,12 +208,17 @@ document.addEventListener('DOMContentLoaded',function() {
 	offline.addEventListener('click',function(e) {
 		offline.innerText = "offline mode on";
 		offlineMode = true;
-		for (var i = 0; i < beneficiariesArray.length; i++) {
-			beneficiariesArray[i]
-		}
-		console.log(beneficiariesArray.toString());
+
 		localStorage.setItem('beneficiaries', JSON.stringify(beneficiariesArray));
 		console.log(JSON.parse(localStorage.beneficiaries));
+		beneficiariesArray = JSON.parse(localStorage.beneficiaries);
+		areasArray = JSON.parse(localStorage.areas);
+		collectorsArray = JSON.parse(localStorage.collectors);
+
+		CreateCollector(collectorsArray);
+		CreateBeneficiaries(beneficiariesArray);
+		CreateArea(areasArray);
+
 
 
 	})
@@ -291,7 +374,7 @@ var CreateCollector = function(collector) {
 	this.option.value = collector.fields.Name;
 	this.option.innerText = collector.fields.Name;
 	this.option.id = collector.id;
-	collectiorSelect.appendChild(this.option);
+	collectorSelect.appendChild(this.option);
 
 }
 // INCREMENT SELECT AREA
@@ -306,19 +389,10 @@ var CreateArea = function(collector) {
 }
 // ADD MAP PIN.
 var CreateBeneficiaries = function(beneficiary,collectorId,area) {
-	if (collectorId) {
-		console.log(beneficiary.fields.Assigned);
-		if (beneficiary.fields.Assigned.includes(collectorId) ) {
-			var marker = L.marker([beneficiary.fields.lat, beneficiary.fields.lon]).addTo(markerGroup).bindPopup("name " + beneficiary.fields.Name).openPopup();
-		}
-
-	}else {
 		console.log(beneficiary.fields.lat, beneficiary.fields.lon);
-		var marker = L.marker([beneficiary.fields.lat, beneficiary.fields.lon]).addTo(markerGroup).bindPopup("name " + beneficiary.fields.Name +'<br><a href=#'+beneficiary.id+'>more info<a>').openPopup();
+		var marker = L.marker([beneficiary.fields.lat, beneficiary.fields.lon]).addTo(markerGroup).bindPopup("name " + beneficiary.fields.Name +'<br><a href=#'+beneficiary.id+'>more info<a>');
 
-	}
-
-}
+};
 
 //  FETCH DATA FROM AIRTABLE
 fetchCollectors = () =>{
@@ -335,6 +409,7 @@ fetchCollectors = () =>{
 	.then((response) => response.json())
 	.then((collectors) => {
 		console.log(collectors.records);
+		localStorage.setItem('collectors', JSON.stringify(collectors.records));
 		for (var i = 0; i < collectors.records.length; i++) {
 			CreateCollector(collectors.records[i]);
 		}
@@ -360,6 +435,8 @@ fetchBeneficiares = () =>{
 	.then((beneficiaries) => {
 		console.log(beneficiaries.records)
 		beneficiariesArray = beneficiaries.records;
+		localStorage.setItem('beneficiaries', JSON.stringify(beneficiariesArray));
+		console.log(beneficiariesArray);
 		for (var i = 0; i < beneficiaries.records.length; i++) {
 			CreateBeneficiaries(beneficiaries.records[i]);
 		}
@@ -384,6 +461,7 @@ fetchArea = () =>{
 	.then((response) => response.json())
 	.then((areas) => {
 		console.log(areas.records)
+		localStorage.setItem('areas', JSON.stringify(areas.records));
 		for (var i = 0; i < areas.records.length; i++) {
 			CreateArea(areas.records[i]);
 		}
@@ -429,19 +507,7 @@ fetchArea = () =>{
 	});
 
 
-	// Collectors FILTER
-	collectiorSelect.addEventListener("change", function() {
-		var elem = (typeof this.selectedIndex === "undefined" ? window.event.srcElement : this);
-		var value = elem.value || elem.options[elem.selectedIndex].value;
-		var id  = elem.options[elem.selectedIndex].id // get id
-		// mymap.removeLayer(markerGroup);
-		markerGroup.clearLayers();
-		for (var i = 0; i < beneficiariesArray.length; i++) {
-			CreateBeneficiaries(beneficiariesArray[i],id);
-		}
-		// markerGroup = L.layerGroup().addTo(mymap);
-		// CreateBeneficiaries(beneficiariesArray,id);
-	})
+
 
 
 });
